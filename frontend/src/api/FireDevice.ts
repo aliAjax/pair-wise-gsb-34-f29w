@@ -1,21 +1,23 @@
-import { mockData } from "../mocks/seedData";
+import { http } from "./client";
 import type { FireDevice } from "../types/FireDevice";
 
-const endpoint = "/api/fire-device";
-
-export async function listFireDevice(): Promise<FireDevice[]> {
-  if (typeof fetch !== "undefined" && endpoint.startsWith("/api") && true) {
-    try {
-      const res = await fetch(endpoint);
-      if (res.ok) return await res.json();
-    } catch {
-      // Local mock fallback keeps the UI available during offline review.
-    }
-  }
-  return [...(mockData.fireDevice as unknown as FireDevice[])];
+export function listFireDevice(params: { building_id?: number; status?: string; device_type?: string } = {}) {
+  const query = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== "") query.set(key, String(value));
+  });
+  const suffix = query.toString() ? `?${query.toString()}` : "";
+  return http.get<FireDevice[]>(`/fire-device${suffix}`);
 }
 
-export async function saveFireDevice(payload: FireDevice) {
-  console.info("save FireDevice", payload);
-  return payload;
+export function createFireDevice(payload: Partial<FireDevice> & { building_id: number; device_code: string; device_type: string; floor: string; location_desc: string }) {
+  return http.post<FireDevice>("/fire-device", payload);
+}
+
+export function addReusePaperwork(deviceId: number, paperwork_items: string[]) {
+  return http.post<FireDevice>(`/fire-device/${deviceId}/paperwork`, { paperwork_items });
+}
+
+export function reactivateFireDevice(deviceId: number) {
+  return http.post<FireDevice>(`/fire-device/${deviceId}/reactivate`);
 }

@@ -3,13 +3,16 @@ services:
   db:
     image: postgres:15-alpine
     container_name: ${COMPOSE_PROJECT_NAME:-fire-inspect}-db
+    restart: unless-stopped
     environment:
       POSTGRES_DB: ${DB_NAME:-app_db}
       POSTGRES_USER: ${DB_USER:-app_user}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-app_password}
+      TZ: Asia/Shanghai
     ports:
       - "${DB_PORT:-54320}:5432"
     volumes:
+      # 命名卷，避免绑定挂载到中文路径
       - db_data:/var/lib/postgresql/data
       - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     healthcheck:
@@ -17,11 +20,13 @@ services:
       interval: 10s
       timeout: 5s
       retries: 10
+
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
     container_name: ${COMPOSE_PROJECT_NAME:-fire-inspect}-backend
+    restart: unless-stopped
     env_file:
       - .env
     environment:
@@ -31,28 +36,37 @@ services:
       DB_NAME: ${DB_NAME:-app_db}
       DB_USER: ${DB_USER:-app_user}
       DB_PASSWORD: ${DB_PASSWORD:-app_password}
-      JWT_SECRET: local-dev-secret
+      JWT_SECRET: ${JWT_SECRET:-local-dev-secret}
+      TZ: Asia/Shanghai
     ports:
       - "${BACKEND_PORT:-21103}:8000"
     depends_on:
       db:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:8000/health || exit 1"]
+      # slim 镜像没有 wget/curl，直接用标准库探活
+      test: ["CMD-SHELL", "python -c \"import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/health', timeout=3).status==200 else 1)\""]
       interval: 10s
-      timeout: 5s
+      timeout: 6s
       retries: 10
+      start_period: 20s
+
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
     container_name: ${COMPOSE_PROJECT_NAME:-fire-inspect}-frontend
-    env_file:
-      - .env
+    restart: unless-stopped
     ports:
       - "${FRONTEND_PORT:-20103}:80"
     depends_on:
       backend:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:80/ || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
 volumes:
   db_data:

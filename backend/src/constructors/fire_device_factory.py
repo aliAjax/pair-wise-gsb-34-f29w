@@ -1,4 +1,18 @@
-def create_fire_device_dto(**overrides):
-    row = {"id":1,"building_id":1,"device_code":"device code 1","device_type":"HYDRANT","floor":"floor 1","location_desc":"location desc 1","install_date":"2026-06-11T09:00:00Z","status":"IN_PROGRESS","next_maintenance_at":"2026-06-11T09:00:00Z"}
-    row.update(overrides)
-    return row
+from src.utils.formatters import to_iso
+
+
+def build_fire_device_dto(row):
+    """ORM 设备 -> 响应 DTO。reuse_paperwork 同时给数组和逗号串，供前端手续清单使用。"""
+    paperwork = [p for p in (row.reuse_paperwork or "").split(",") if p]
+    return {
+        "id": row.id,
+        "building_id": row.building_id,
+        "device_code": row.device_code,
+        "device_type": row.device_type,
+        "floor": row.floor,
+        "location_desc": row.location_desc,
+        "install_date": to_iso(row.install_date),
+        "status": row.status,
+        "next_maintenance_at": to_iso(row.next_maintenance_at),
+        "reuse_paperwork": paperwork,
+    }

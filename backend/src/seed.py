@@ -1,162 +1,120 @@
-seed = {
-  "building": [
-    {
-      "id": 1,
-      "name": "name 1",
-      "campus": "campus 1",
-      "floor_count": "floor count 1",
-      "fire_grade": "fire grade 1",
-      "manager_id": 1,
-      "address_code": "address code 1"
-    },
-    {
-      "id": 2,
-      "name": "name 2",
-      "campus": "campus 2",
-      "floor_count": "floor count 2",
-      "fire_grade": "fire grade 2",
-      "manager_id": 2,
-      "address_code": "address code 2"
-    },
-    {
-      "id": 3,
-      "name": "name 3",
-      "campus": "campus 3",
-      "floor_count": "floor count 3",
-      "fire_grade": "fire grade 3",
-      "manager_id": 3,
-      "address_code": "address code 3"
-    }
-  ],
-  "fireDevice": [
-    {
-      "id": 1,
-      "building_id": 1,
-      "device_code": "device code 1",
-      "device_type": "HYDRANT",
-      "floor": "floor 1",
-      "location_desc": "location desc 1",
-      "install_date": "2026-06-11T09:00:00Z",
-      "status": "IN_PROGRESS",
-      "next_maintenance_at": "2026-06-11T09:00:00Z"
-    },
-    {
-      "id": 2,
-      "building_id": 2,
-      "device_code": "device code 2",
-      "device_type": "SMOKE_DETECTOR",
-      "floor": "floor 2",
-      "location_desc": "location desc 2",
-      "install_date": "2026-06-12T09:00:00Z",
-      "status": "SUBMITTED",
-      "next_maintenance_at": "2026-06-12T09:00:00Z"
-    },
-    {
-      "id": 3,
-      "building_id": 3,
-      "device_code": "device code 3",
-      "device_type": "SPRINKLER",
-      "floor": "floor 3",
-      "location_desc": "location desc 3",
-      "install_date": "2026-06-13T09:00:00Z",
-      "status": "PLANNED",
-      "next_maintenance_at": "2026-06-13T09:00:00Z"
-    }
-  ],
-  "inspectionTask": [
-    {
-      "id": 1,
-      "building_id": 1,
-      "inspector_id": 1,
-      "plan_date": "2026-06-11T09:00:00Z",
-      "task_type": "HYDRANT",
-      "status": "IN_PROGRESS",
-      "checklist_version": "checklist version 1",
-      "finished_at": "2026-06-11T09:00:00Z"
-    },
-    {
-      "id": 2,
-      "building_id": 2,
-      "inspector_id": 2,
-      "plan_date": "2026-06-12T09:00:00Z",
-      "task_type": "SMOKE_DETECTOR",
-      "status": "SUBMITTED",
-      "checklist_version": "checklist version 2",
-      "finished_at": "2026-06-12T09:00:00Z"
-    },
-    {
-      "id": 3,
-      "building_id": 3,
-      "inspector_id": 3,
-      "plan_date": "2026-06-13T09:00:00Z",
-      "task_type": "SPRINKLER",
-      "status": "PLANNED",
-      "checklist_version": "checklist version 3",
-      "finished_at": "2026-06-13T09:00:00Z"
-    }
-  ],
-  "inspectionResult": [
-    {
-      "id": 1,
-      "task_id": 1,
-      "device_id": 1,
-      "item_code": "item code 1",
-      "result_status": "IN_PROGRESS",
-      "measured_value": "measured value 1",
-      "photo_url": "/mock/photo_url-1.png",
-      "note": "note 1"
-    },
-    {
-      "id": 2,
-      "task_id": 2,
-      "device_id": 2,
-      "item_code": "item code 2",
-      "result_status": "SUBMITTED",
-      "measured_value": "measured value 2",
-      "photo_url": "/mock/photo_url-2.png",
-      "note": "note 2"
-    },
-    {
-      "id": 3,
-      "task_id": 3,
-      "device_id": 3,
-      "item_code": "item code 3",
-      "result_status": "PLANNED",
-      "measured_value": "measured value 3",
-      "photo_url": "/mock/photo_url-3.png",
-      "note": "note 3"
-    }
-  ],
-  "hazardTicket": [
-    {
-      "id": 1,
-      "result_id": 1,
-      "severity": "severity 1",
-      "owner_id": 1,
-      "deadline": "deadline 1",
-      "rectify_status": "IN_PROGRESS",
-      "rectify_note": "rectify note 1",
-      "closed_at": "2026-06-11T09:00:00Z"
-    },
-    {
-      "id": 2,
-      "result_id": 2,
-      "severity": "severity 2",
-      "owner_id": 2,
-      "deadline": "deadline 2",
-      "rectify_status": "SUBMITTED",
-      "rectify_note": "rectify note 2",
-      "closed_at": "2026-06-12T09:00:00Z"
-    },
-    {
-      "id": 3,
-      "result_id": 3,
-      "severity": "severity 3",
-      "owner_id": 3,
-      "deadline": "deadline 3",
-      "rectify_status": "PLANNED",
-      "rectify_note": "rectify note 3",
-      "closed_at": "2026-06-13T09:00:00Z"
-    }
-  ]
-}
+"""本地数据库播种：全部本地数据，无任何第三方 API。
+
+场景设计（时间相对当前日期动态生成，保证停用窗口/巡检窗口必然重叠）：
+- 楼栋 A：2 台消火栓（HYD-001 在用 + HYD-002 备用），停用 HYD-001 时任务可改派；
+- 楼栋 A：3 个烟感（SMK-001 在用 + SMK-002/003 备用），备用容量打满后排队待补检；
+- 楼栋 B：1 台喷淋 SPR-001（无备用），停用即待补检；
+- 巡检结果/隐患单已与上述设备关联，用于演示“停用一变就作废待复核”。
+"""
+
+from datetime import datetime, timedelta, timezone
+
+from src.config.database import Base, SessionLocal, engine
+from src.models import (
+    AuditLog,
+    Building,
+    FireDevice,
+    HazardTicket,
+    InspectionResult,
+    InspectionTask,
+)
+
+
+def seed_database():
+    Base.metadata.create_all(bind=engine)
+    db = SessionLocal()
+    try:
+        if db.query(Building).count() > 0:
+            return
+        now = datetime.now(timezone.utc).replace(minute=0, second=0, microsecond=0, tzinfo=None)
+        day = timedelta(days=1)
+        window_start = now + 2 * day
+
+        b1 = Building(
+            name="1 号研发楼", campus="江北产业园", floor_count=8,
+            fire_grade="一级", manager_id=3, address_code="JB-A01",
+        )
+        b2 = Building(
+            name="2 号仓储楼", campus="江北产业园", floor_count=3,
+            fire_grade="二级", manager_id=3, address_code="JB-B02",
+        )
+        db.add_all([b1, b2])
+        db.flush()
+
+        def add_device(code, building_id, dtype, floor, loc, install):
+            row = FireDevice(
+                building_id=building_id, device_code=code, device_type=dtype,
+                floor=floor, location_desc=loc, install_date=install,
+                status="NORMAL", next_maintenance_at=now + 30 * day, reuse_paperwork="",
+            )
+            db.add(row)
+            return row
+
+        devices = [
+            add_device("HYD-001", b1.id, "HYDRANT", "1F", "A 区消火栓", now - 400 * day),
+            add_device("HYD-002", b1.id, "HYDRANT", "3F", "B 区消火栓", now - 300 * day),
+            add_device("SMK-001", b1.id, "SMOKE_DETECTOR", "2F", "走廊东端", now - 500 * day),
+            add_device("SMK-002", b1.id, "SMOKE_DETECTOR", "2F", "走廊西端", now - 500 * day),
+            add_device("SMK-003", b1.id, "SMOKE_DETECTOR", "4F", "电梯厅", now - 500 * day),
+            add_device("EXT-001", b1.id, "EXTINGUISHER", "1F", "前台旁", now - 200 * day),
+            add_device("EXIT-001", b1.id, "EXIT_LIGHT", "1F", "安全出口", now - 200 * day),
+            add_device("SPR-001", b2.id, "SPRINKLER", "1F", "货架区主管", now - 600 * day),
+            add_device("EXT-002", b2.id, "EXTINGUISHER", "1F", "仓库出入口", now - 300 * day),
+        ]
+        db.flush()
+
+        def add_task(building_id, plan, ttype, status="PLANNED", inspector=1):
+            row = InspectionTask(
+                building_id=building_id, inspector_id=inspector, plan_date=plan,
+                task_type=ttype, status=status, checklist_version="v2026.1",
+                finished_at=None,
+            )
+            db.add(row)
+            return row
+
+        plan_at = window_start + timedelta(hours=2)
+        tasks = [
+            add_task(b1.id, plan_at, "HYDRANT"),                                   # 0 -> HYD-001
+            add_task(b1.id, plan_at + timedelta(hours=1), "SMOKE_DETECTOR"),      # 1 -> SMK-001
+            add_task(b1.id, plan_at + timedelta(hours=2), "SMOKE_DETECTOR"),      # 2 -> SMK-001
+            add_task(b1.id, plan_at + timedelta(hours=3), "SMOKE_DETECTOR"),      # 3 -> SMK-001
+            add_task(b2.id, plan_at, "SPRINKLER"),                                # 4 -> SPR-001
+            add_task(b1.id, now - 5 * day, "EXTINGUISHER", status="REVIEWED", inspector=1),
+        ]
+        db.flush()
+
+        def add_result(task, device, item, status="NORMAL", note=""):
+            row = InspectionResult(
+                task_id=task.id, device_id=device.id, item_code=item,
+                result_status=status, measured_value="0.35MPa" if status == "NORMAL" else "0.08MPa",
+                photo_url="/mock/photo.png", note=note,
+                review_flag="ACTIVE",
+            )
+            db.add(row)
+            return row
+
+        add_result(tasks[0], devices[0], "HYDRANT_PRESSURE")
+        r2 = add_result(tasks[1], devices[2], "SMOKE_SENSITIVITY", status="ABNORMAL", note="响应偏慢")
+        add_result(tasks[2], devices[2], "SMOKE_SENSITIVITY")
+        add_result(tasks[3], devices[2], "SMOKE_POWER")
+        add_result(tasks[4], devices[7], "SPRINKLER_VALVE")
+        r6 = add_result(tasks[5], devices[5], "EXT_PRESSURE", status="ABNORMAL", note="压力不足")
+        db.flush()
+
+        t1 = HazardTicket(
+            result_id=r2.id, device_id=devices[2].id, severity="HIGH", owner_id=2,
+            deadline=now + 10 * day, rectify_status="ASSIGNED", rectify_note="已联系维保更换探头",
+        )
+        t2 = HazardTicket(
+            result_id=r6.id, device_id=devices[5].id, severity="MEDIUM", owner_id=2,
+            deadline=now + 7 * day, rectify_status="RECTIFIED", rectify_note="已充装",
+        )
+        db.add_all([t1, t2])
+
+        db.add(AuditLog(
+            actor="system", action="seed", target_type="System", target_id="seed",
+            detail="初始化本地种子数据", created_at=now,
+        ))
+        db.commit()
+    finally:
+        db.close()

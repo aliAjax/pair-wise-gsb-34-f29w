@@ -11,3 +11,6 @@ __pycache__/
 .pytest_cache/
 target/
 vendor/
+*.db
+backend/.venv/
+.venv/

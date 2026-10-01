@@ -1,54 +1,114 @@
-import React, { useMemo, useState } from "react";
+import React from "react";
+import type { ReactNode } from "react";
 import { createRoot } from "react-dom/client";
-import { routes } from "./router/routes";
-import { mockData } from "./mocks/seedData";
-import { StatusBadge } from "./components/common/StatusBadge";
-import { StatCard } from "./components/common/StatCard";
+import { Provider } from "react-redux";
+import { createBrowserRouter, Navigate, RouterProvider } from "react-router-dom";
+import { CssBaseline } from "@mui/material";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
+
+import { AppLayout } from "./components/AppLayout";
+import { ToastProvider } from "./components/common/Toast";
+import { DEMO_USERS, type Role } from "./constants/roles";
+import { DashboardPage } from "./pages/DashboardPage";
+import { DevicesPage } from "./pages/DevicesPage";
+import { OutagesPage } from "./pages/OutagesPage";
+import { TasksPage } from "./pages/TasksPage";
+import { HazardsPage } from "./pages/HazardsPage";
+import { ReportsPage } from "./pages/ReportsPage";
+import { RoleGuard } from "./router/RoleGuard";
+import { store } from "./stores";
+import { useAppSelector } from "./stores/hooks";
 import "./styles.css";
 
-function Page({ name }: { name: string }) {
-  const entities = Object.entries(mockData);
-  const total = useMemo(() => entities.reduce((sum, [, rows]) => sum + rows.length, 0), [entities]);
-  return <main className="page">
-    <section className="page-head">
-      <div>
-        <p className="eyebrow">fire-inspect</p>
-        <h1>{name}</h1>
-      </div>
-      <StatusBadge value="LOCAL_DATA" />
-    </section>
-    <section className="metrics">
-      <StatCard label="核心模型" value={entities.length} />
-      <StatCard label="本地记录" value={total} />
-      <StatCard label="共享枚举" value={3} />
-    </section>
-    <section className="workbench">
-      <div className="panel wide">
-        <h2>业务数据</h2>
-        <div className="table">
-          {entities.map(([key, rows]) => <article key={key} className="row">
-            <strong>{key}</strong><span>{rows.length} 条</span><StatusBadge value={Object.values(rows[0] ?? {})[1] as string ?? "READY"} />
-          </article>)}
-        </div>
-      </div>
-      <div className="panel">
-        <h2>联动检查</h2>
-        <p>页面、store、API、构造器、日志模板和枚举常量均按提示词拆分，适合评审跨文件修改能力。</p>
-      </div>
-    </section>
-  </main>;
+const theme = createTheme({
+  palette: {
+    primary: { main: "#274335" },
+    secondary: { main: "#d39b46" },
+    warning: { main: "#8a5a12" },
+    error: { main: "#8a2b2b" },
+    background: { default: "#eef1e8" }
+  },
+  typography: {
+    fontFamily: `"PingFang SC", "Microsoft YaHei", system-ui, sans-serif`
+  }
+});
+
+// 按当前会话角色做路由守卫（菜单显隐与页面访问都走这里）
+function Guarded({ roles, children }: { roles: Role[]; children: ReactNode }) {
+  const actorId = useAppSelector((state) => state.session.actorId);
+  const actor = DEMO_USERS.find((user) => user.id === actorId) ?? DEMO_USERS[2];
+  if (!roles.includes(actor.role)) return <Navigate to="/dashboard" replace />;
+  return <RoleGuard role={actor.role}>{children}</RoleGuard>;
 }
 
-function App() {
-  const [active, setActive] = useState<string>(routes[0]?.route ?? "/dashboard");
-  const current = routes.find((route) => route.route === active) ?? routes[0];
-  return <div className="shell">
-    <aside>
-      <div className="brand">消防设施巡检维保平台</div>
-      <nav>{routes.map((route) => <button key={route.route} className={active === route.route ? "active" : ""} onClick={() => setActive(route.route)}>{route.name}</button>)}</nav>
-    </aside>
-    <Page name={current?.name ?? "工作台"} />
-  </div>;
-}
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <AppLayout />,
+    children: [
+      { index: true, element: <Navigate to="/dashboard" replace /> },
+      {
+        path: "dashboard",
+        element: (
+          <Guarded roles={["INSPECTOR", "MAINTAINER", "SUPERVISOR", "AUDITOR"]}>
+            <DashboardPage />
+          </Guarded>
+        )
+      },
+      {
+        path: "outages",
+        element: (
+          <Guarded roles={["MAINTAINER", "SUPERVISOR", "AUDITOR"]}>
+            <OutagesPage />
+          </Guarded>
+        )
+      },
+      {
+        path: "devices",
+        element: (
+          <Guarded roles={["INSPECTOR", "MAINTAINER", "SUPERVISOR", "AUDITOR"]}>
+            <DevicesPage />
+          </Guarded>
+        )
+      },
+      {
+        path: "tasks",
+        element: (
+          <Guarded roles={["INSPECTOR", "MAINTAINER", "SUPERVISOR", "AUDITOR"]}>
+            <TasksPage />
+          </Guarded>
+        )
+      },
+      {
+        path: "hazards",
+        element: (
+          <Guarded roles={["INSPECTOR", "MAINTAINER", "SUPERVISOR", "AUDITOR"]}>
+            <HazardsPage />
+          </Guarded>
+        )
+      },
+      {
+        path: "reports",
+        element: (
+          <Guarded roles={["SUPERVISOR", "AUDITOR"]}>
+            <ReportsPage />
+          </Guarded>
+        )
+      },
+      { path: "*", element: <Navigate to="/dashboard" replace /> }
+    ]
+  }
+]);
 
-createRoot(document.getElementById("root")!).render(<App />);
+createRoot(document.getElementById("root")!).render(
+  <React.StrictMode>
+    <Provider store={store}>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <ToastProvider>
+          <RouterProvider router={router} />
+        </ToastProvider>
+      </ThemeProvider>
+    </Provider>
+  </React.StrictMode>
+);
