@@ -1,3 +1,5 @@
+import type { DeviceStatus } from "../constants/DeviceStatus";
+
 export interface FireDevice {
   id: number;
   building_id: number;
@@ -5,7 +7,8 @@ export interface FireDevice {
   device_type: string;
   floor: string;
   location_desc: string;
-  install_date: string;
-  status: string;
-  next_maintenance_at: string;
+  install_date: string | null;
+  status: DeviceStatus | string;
+  capacity: number;
+  next_maintenance_at: string | null;
 }

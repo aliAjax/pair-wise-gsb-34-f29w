@@ -1,1 +1,35 @@
 :root{font-family:"Aptos","PingFang SC",system-ui,sans-serif;color:#20211d;background:#eef1e8}body{margin:0}.shell{min-height:100vh;display:grid;grid-template-columns:260px 1fr}aside{background:#223126;color:#f5f1e6;padding:28px 20px;border-right:6px solid #d39b46}.brand{font-size:20px;font-weight:800;line-height:1.25;margin-bottom:24px}nav{display:grid;gap:8px}button{border:0;background:transparent;color:inherit;text-align:left;padding:10px 12px;border-radius:6px;cursor:pointer}button.active,button:hover{background:#f5f1e6;color:#223126}.page{padding:30px;display:grid;gap:22px}.page-head{display:flex;align-items:flex-end;justify-content:space-between;border-bottom:1px solid #c9d0c3;padding-bottom:18px}.eyebrow{margin:0 0 8px;color:#7d4d18;text-transform:uppercase;font-size:12px;font-weight:800;letter-spacing:.08em}h1{font-size:clamp(28px,4vw,46px);margin:0;letter-spacing:0}h2{margin:0 0 14px;font-size:18px}.metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.stat,.panel{background:#fbfaf4;border:1px solid #d8d6c8;border-radius:8px;padding:18px}.stat span{display:block;color:#596257;font-size:13px}.stat strong{font-size:30px;color:#274335}.workbench{display:grid;grid-template-columns:2fr 1fr;gap:18px}.row{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:12px;border-top:1px solid #e4e0d3;padding:12px 0}.badge{display:inline-flex;align-items:center;min-height:24px;border-radius:999px;background:#e4efe4;color:#244b31;padding:2px 10px;font-size:12px;font-weight:800}.shared-widget,.empty{border:1px dashed #b8b09f;padding:14px;border-radius:8px}@media (max-width:760px){.shell{grid-template-columns:1fr}aside{position:static}.metrics,.workbench{grid-template-columns:1fr}.page{padding:18px}.page-head{align-items:flex-start;gap:12px;flex-direction:column}}
+
+/* ---- 停用排期业务样式 ---- */
+.badge.out-of-service,.badge.void-pending,.badge.pending-recheck{background:#f7e3d6;color:#8a3b12}
+.badge.backup,.badge.confirmed,.badge.reconfirmed{background:#dcebe2;color:#1d5c38}
+.badge.draft{background:#efe9d3;color:#7a5b14}
+.badge.superseded,.badge.rejected{background:#e7e3dc;color:#5a5347}
+.badge.rescheduled{background:#dfe7f2;color:#274a73}
+table.grid{width:100%;border-collapse:collapse;font-size:13px}
+table.grid th,table.grid td{text-align:left;padding:9px 10px;border-bottom:1px solid #e6e2d4;vertical-align:middle}
+table.grid th{color:#6a7164;font-size:12px;text-transform:uppercase;letter-spacing:.04em}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.field{display:grid;gap:6px}
+.field label{font-size:12px;color:#596257;font-weight:700}
+.field input,.field select,.field textarea{padding:9px 10px;border:1px solid #c8c4b4;border-radius:6px;font:inherit;background:#fff}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 14px;border-radius:6px;font-weight:700;font-size:13px;cursor:pointer;border:1px solid #274335;background:#274335;color:#f7f4ea}
+.btn.secondary{background:#fff;color:#274335}
+.btn.danger{background:#8a3b12;border-color:#8a3b12;color:#fff}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.capacity{display:grid;gap:6px;min-width:220px}
+.capacity-track{height:10px;border-radius:999px;background:#e7e3d6;overflow:hidden}
+.capacity-fill{height:100%;background:linear-gradient(90deg,#5b8a68,#274335)}
+.capacity.danger .capacity-fill{background:linear-gradient(90deg,#d98b5e,#8a3b12)}
+.capacity-text{font-size:12px;color:#596257}
+.alert{padding:12px 14px;border-radius:8px;font-size:13px;border:1px solid}
+.alert.warn{background:#fbf0df;border-color:#d39b46;color:#7a4d12}
+.alert.error{background:#f8e3da;border-color:#c0653b;color:#8a3b12}
+.alert.ok{background:#e4efe4;border-color:#7aa386;color:#244b31}
+.review-flag{display:inline-flex;align-items:center;gap:6px}
+.review-flag em{font-style:normal;font-size:12px;color:#8a3b12}
+.muted{color:#7d857a;font-size:12px}
+.stack{display:grid;gap:12px}
+.tag-list{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-size:12px;padding:3px 10px;border-radius:999px;background:#efe9d3;color:#7a5b14}
+.chip.done{background:#dcebe2;color:#1d5c38}

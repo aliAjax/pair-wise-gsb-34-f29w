@@ -1,21 +1,10 @@
-import { mockData } from "../mocks/seedData";
+import { http } from "./http";
 import type { FireDevice } from "../types/FireDevice";
 
-const endpoint = "/api/fire-device";
-
-export async function listFireDevice(): Promise<FireDevice[]> {
-  if (typeof fetch !== "undefined" && endpoint.startsWith("/api") && true) {
-    try {
-      const res = await fetch(endpoint);
-      if (res.ok) return await res.json();
-    } catch {
-      // Local mock fallback keeps the UI available during offline review.
-    }
-  }
-  return [...(mockData.fireDevice as unknown as FireDevice[])];
+export function listFireDevice(): Promise<FireDevice[]> {
+  return http.get<FireDevice[]>("/fire-device");
 }
 
-export async function saveFireDevice(payload: FireDevice) {
-  console.info("save FireDevice", payload);
-  return payload;
+export function createFireDevice(payload: Partial<FireDevice>): Promise<FireDevice> {
+  return http.post<FireDevice>("/fire-device", payload);
 }

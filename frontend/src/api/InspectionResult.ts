@@ -1,21 +1,15 @@
-import { mockData } from "../mocks/seedData";
+import { http } from "./http";
 import type { InspectionResult } from "../types/InspectionResult";
 
-const endpoint = "/api/inspection-result";
-
-export async function listInspectionResult(): Promise<InspectionResult[]> {
-  if (typeof fetch !== "undefined" && endpoint.startsWith("/api") && true) {
-    try {
-      const res = await fetch(endpoint);
-      if (res.ok) return await res.json();
-    } catch {
-      // Local mock fallback keeps the UI available during offline review.
-    }
-  }
-  return [...(mockData.inspectionResult as unknown as InspectionResult[])];
+export function listInspectionResult(): Promise<InspectionResult[]> {
+  return http.get<InspectionResult[]>("/inspection-result");
 }
 
-export async function saveInspectionResult(payload: InspectionResult) {
-  console.info("save InspectionResult", payload);
-  return payload;
+export function reviewInspectionResult(
+  id: number,
+  reviewStatus: "RECONFIRMED" | "REJECTED"
+): Promise<InspectionResult> {
+  return http.post<InspectionResult>(`/inspection-result/${id}/review`, {
+    review_status: reviewStatus
+  });
 }

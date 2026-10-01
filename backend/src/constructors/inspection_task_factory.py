@@ -1,4 +1,16 @@
-def create_inspection_task_dto(**overrides):
-    row = {"id":1,"building_id":1,"inspector_id":1,"plan_date":"2026-06-11T09:00:00Z","task_type":"HYDRANT","status":"IN_PROGRESS","checklist_version":"checklist version 1","finished_at":"2026-06-11T09:00:00Z"}
-    row.update(overrides)
-    return row
+"""巡检任务响应构造器：ORM -> DTO。"""
+
+
+def create_inspection_task_dto(row, **overrides):
+    data = {
+        "id": row.id,
+        "building_id": row.building_id,
+        "inspector_id": row.inspector_id,
+        "plan_date": row.plan_date.isoformat() if getattr(row, "plan_date", None) else None,
+        "task_type": row.task_type,
+        "status": row.status,
+        "checklist_version": row.checklist_version,
+        "finished_at": row.finished_at.isoformat() if getattr(row, "finished_at", None) else None,
+    }
+    data.update(overrides)
+    return data

@@ -1,21 +1,20 @@
-import { mockData } from "../mocks/seedData";
+import { http } from "./http";
 import type { InspectionTask } from "../types/InspectionTask";
+import type { TaskDeviceAssignment } from "../types/TaskDeviceAssignment";
 
-const endpoint = "/api/inspection-task";
-
-export async function listInspectionTask(): Promise<InspectionTask[]> {
-  if (typeof fetch !== "undefined" && endpoint.startsWith("/api") && true) {
-    try {
-      const res = await fetch(endpoint);
-      if (res.ok) return await res.json();
-    } catch {
-      // Local mock fallback keeps the UI available during offline review.
-    }
-  }
-  return [...(mockData.inspectionTask as unknown as InspectionTask[])];
+export function listInspectionTask(): Promise<InspectionTask[]> {
+  return http.get<InspectionTask[]>("/inspection-task");
 }
 
-export async function saveInspectionTask(payload: InspectionTask) {
-  console.info("save InspectionTask", payload);
-  return payload;
+export function listAssignments(
+  taskId?: number
+): Promise<TaskDeviceAssignment[]> {
+  const query = taskId ? `?task_id=${taskId}` : "";
+  return http.get<TaskDeviceAssignment[]>(`/inspection-task/assignments${query}`);
+}
+
+export function createInspectionTask(
+  payload: Partial<InspectionTask> & { device_ids?: number[] }
+): Promise<InspectionTask> {
+  return http.post<InspectionTask>("/inspection-task", payload);
 }

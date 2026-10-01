@@ -4,6 +4,6 @@ export interface Building {
   campus: string;
   floor_count: number;
   fire_grade: string;
-  manager_id: number;
+  manager_id: number | null;
   address_code: string;
 }
